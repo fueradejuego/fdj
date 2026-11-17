@@ -1,0 +1,328 @@
+<!-- ============================================================
+     FRAGMENTO B · Reproductor + fuentes  (CONFIGURABLE)
+     ------------------------------------------------------------
+     Igual que el fragmento A, pero el título y las fuentes se
+     pasan por parámetro, así sirve para CUALQUIER evento.
+
+     Formas de usarlo (elige una):
+       1) Define window.ZFP_CONFIG ANTES de este script.
+       2) Pon atributos data-* en el div:  data-title, data-meta,
+          data-poster, data-sources='[{"group":"...","label":"...","url":"..."}]'
+       3) Llama después:  ZFP.init(document.querySelector('[data-zfp]'), cfg)
+
+     Puedes poner VARIOS <div data-zfp> y cada uno monta su reproductor.
+     Sin chat, sin anuncios, sin scripts de terceros.
+     ============================================================ -->
+
+<style>
+  .zfp{--bg:#0f1015;--panel:#161821;--panel2:#1c1f2b;--line:#282c3a;--txt:#e9ecf3;
+    --dim:#98a2b8;--accent:#e50914;--accent2:#3ea6ff;--ok:#39d98a;
+    background:var(--bg);color:var(--txt);padding:14px;border-radius:14px;
+    font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+  .zfp *{box-sizing:border-box}
+  .zfp a{color:var(--accent2);text-decoration:none}
+  .zfp a:hover{text-decoration:underline}
+  .zfp .ev{display:flex;gap:12px;align-items:center;margin-bottom:12px}
+  .zfp .ev img{width:60px;height:60px;border-radius:10px;object-fit:cover;background:#000;flex:none}
+  .zfp .ev h1{margin:0;font-size:17px;line-height:1.2}
+  .zfp .ev .m{color:var(--dim);font-size:12.5px}
+  /* Reproductor pequeño a la izquierda, fuentes anchas a la derecha.
+     Cambia el tamaño del reproductor con  --zfp-player-w  (o ponlo en "1fr"). */
+  .zfp .grid{display:grid;gap:14px;align-items:start;
+    grid-template-columns:minmax(0,var(--zfp-player-w,400px)) minmax(0,1fr)}
+  @media (max-width:760px){.zfp .grid{grid-template-columns:1fr}}
+  .zfp .stage{position:relative;width:100%;aspect-ratio:16/9;background:#000;
+    border-radius:12px;overflow:hidden;border:1px solid var(--line)}
+  .zfp .stage>iframe,.zfp .stage>video{position:absolute;inset:0;width:100%;height:100%;
+    border:0;display:block;background:#000}
+  .zfp .empty{position:absolute;inset:0;display:flex;flex-direction:column;gap:8px;
+    align-items:center;justify-content:center;color:var(--dim);text-align:center;padding:18px}
+  .zfp .empty .big{font-size:36px;opacity:.5}
+  .zfp .note{position:absolute;left:0;right:0;bottom:0;z-index:5;padding:9px 11px;
+    font-size:12.5px;color:#cfd6e4;background:linear-gradient(transparent,rgba(0,0,0,.8))}
+  .zfp .bar{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-top:9px}
+  .zfp .now{flex:1;min-width:160px;color:var(--dim);font-size:13px;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .zfp .now b{color:var(--txt)}
+  .zfp .btn{background:var(--panel2);border:1px solid var(--line);color:var(--txt);
+    border-radius:9px;padding:7px 11px;font:600 12.5px/1 inherit;cursor:pointer}
+  .zfp .btn:hover{border-color:#3a4664;background:#222634}
+  .zfp aside{background:var(--panel);border:1px solid var(--line);border-radius:12px;
+    padding:11px;max-height:min(72vh,620px);overflow:auto}
+  .zfp h2{margin:2px 0 10px;font-size:14px}
+  .zfp .grp{margin-bottom:11px}
+  .zfp .glabel{color:var(--dim);font-size:11px;text-transform:uppercase;
+    letter-spacing:.6px;margin:0 0 6px 2px}
+  .zfp .src{display:flex;align-items:flex-start;gap:8px;width:100%;text-align:left;
+    background:var(--panel2);border:1px solid var(--line);color:var(--txt);
+    border-radius:9px;padding:8px 10px;margin-bottom:6px;cursor:pointer;font:500 13px/1.3 inherit}
+  .zfp .src:hover{border-color:#3a4664;background:#222634}
+  .zfp .src.active{border-color:var(--accent);background:#2a1216}
+  .zfp .src .dot{width:7px;height:7px;border-radius:50%;background:var(--ok);flex:none;margin-top:5px}
+  .zfp .src .txt{flex:1;min-width:0}
+  .zfp .src .nm{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  /* URL completa, visible y seleccionable */
+  .zfp .src .url{display:block;margin-top:2px;color:#8f9bb3;
+    font:400 11px/1.35 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;word-break:break-all}
+</style>
+
+<!-- Aquí se monta el reproductor. Añade atributos data-* si quieres
+     sobrescribir el título/fuentes por defecto. -->
+<div class="zfp" data-zfp></div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ---------- Configuración por defecto (se puede sobrescribir) ---------- */
+  var SITE = 'https://bp.zicotv.cc';
+  var DEFAULT = {
+    title: 'FUERA DE JUEGO',
+    meta: 'USO PARTICULAR',
+    poster: 'https://png.pngtree.com/png-vector/20221122/ourmid/pngtree-football-offside-flag-png-image_6454641.png',
+    sources: [
+      { group: 'Fuera de juego',   label: 'Portugal-Gales', url: SITE + '/api/player/55042' },
+       { group: 'Fuera de juego 2',   label: 'Portugal-Gales', url: SITE + '/api/player/54907' },
+       { group: 'Fuera de juego 3',   label: 'Portugal-Gales', url:'https://streamx723.sbs/global2.php?channel=espn' },
+         { group: 'Fuera de juego 4',   label: 'Portugal-Gales', url:' https://streamtp99a.sbs/global2.php?stream=espn' },
+      { group: 'English',  label: 'FOX Sports 2 \u00b7 HD',        url: 'https://dlhd.pk/stream/stream-758.php' },
+      { group: 'English',  label: 'FUBO Sports Network \u00b7 FHD', url: 'https://xyzstreams.st/embed?fubosn' },
+      { group: '\u010ce\u0161tina', label: 'Sport 1 \u00b7 FHD',   url: 'https://google.com/play/play_other.php?id=710' },
+      { group: 'Polski',   label: 'Polsat Sport 1 \u00b7 UHD',     url: 'https://vcdn-4758.website/shopping2/?channel_id=polsat_sport1' },
+      { group: 'Polski',   label: 'Polsat Sport 1 \u00b7 HD',      url: 'https://vcdn-4758.website/shopping2/?channel_id=polsat_sport1_720p' },
+      { group: 'Polski',   label: 'Polsat Sport 1 \u00b7 SD',      url: 'https://lovetier.bz/player/POLSATSPORTPL' },
+      { group: 'C\u0440\u043f\u0441\u043a\u0438', label: 'Arena Premium 2 \u00b7 FHD', url: 'https://vcdn-4758.website/shopping2/?channel_id=arenapremium2rs' },
+      { group: 'C\u0440\u043f\u0441\u043a\u0438', label: 'Arena Premium 2 \u00b7 FHD', url: 'https://vcdn-4758.website/shopping/?channel_id=arenapremium2rs' },
+      { group: 'Espa\u00f1ol', label: 'ESPN \u00b7 HD',            url: 'https://dlhd.pk/stream/stream-149.php' },
+      { group: 'Hrvatski', label: 'SportKlub 1 \u00b7 UHD',        url: 'https://vcdn-4758.website/shopping2/?channel_id=sportklub1' },
+      { group: 'Portugu\u00eas', label: 'Sport TV1 \u00b7 UHD',    url: 'https://streamic.st/e/vip/PT/tv1.php' },
+      { group: 'Portugu\u00eas', label: 'Sport TV1 \u00b7 HD',     url: 'https://lovetier.bz/player/SPT1' },
+      { group: 'Portugu\u00eas', label: 'Sport TV1 \u00b7 HD',     url: 'https://dlhd.pk/stream/stream-49.php' },
+      { group: 'Rom\u00e2n\u0103', label: 'Prima Sport 1 \u00b7 FHD', url: 'https://vcdn-4758.website/shopping2/?channel_id=primasport1' },
+      { group: 'Rom\u00e2n\u0103', label: 'Prima Sport 1 \u00b7 FHD', url: 'https://vcdn-4758.website/shopping/?channel_id=primasport1' },
+      { group: 'Slovensk\u00fd', label: 'Sport 1 \u00b7 UHD',      url: 'https://streamic.st/e/vip/SK/sport1.php' },
+      { group: '\u0627\u0644\u0639\u0631\u0628\u064a\u0629', label: 'BeIN Sports MENA \u00b7 FHD', url: 'https://xyzstreams.st/embed?beinar' },
+      { group: 'Otros',    label: 'DAZN (EN-CA) \u00b7 HD',        url: 'https://taifood-blog.asia/embed/uefa-nations-league/2026-11-16/ger-ned' },
+      { group: 'Otros',    label: 'DAZN (EN-CA) \u00b7 SD',        url: 'https://taifood-blog.asia/embed/uefa-nations-league/2026-11-16/ger-ned_540p' }
+       
+
+    ]
+  };
+
+  /* ---------- Utilidades ---------- */
+  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+  function hostOf(u) { try { return new URL(u, location.href).host; } catch (e) { return ''; } }
+  function detectKind(u) {
+    if (/\.m3u8(\?|#|$)/i.test(u)) return 'hls';
+    if (/\.mpd(\?|#|$)/i.test(u))  return 'dash';
+    if (/\.(mp4|m4v|mov|webm|ogv|ogg)(\?|#|$)/i.test(u)) return 'file';
+    return 'embed';
+  }
+  function loadScript(src) {
+    return new Promise(function (res, rej) {
+      var s = document.createElement('script');
+      s.src = src; s.async = true;
+      s.onload = function () { res(); };
+      s.onerror = function () { rej(new Error('No se pudo cargar ' + src)); };
+      document.head.appendChild(s);
+    });
+  }
+
+  /* ---------- Montaje ---------- */
+  function init(root, userCfg) {
+    if (!root || root.__zfp) return root && root.__zfp;
+    root.__zfp = true;
+
+    var cfg = Object.assign({}, DEFAULT, userCfg || {});
+    var ds = root.dataset || {};
+    if (ds.title)  cfg.title  = ds.title;
+    if (ds.meta)   cfg.meta   = ds.meta;
+    if (ds.poster) cfg.poster = ds.poster;
+    if (ds.sources) { try { cfg.sources = JSON.parse(ds.sources); } catch (e) { /* se ignora */ } }
+
+    root.classList.add('zfp');
+    root.innerHTML =
+      '<div class="ev">' +
+        (cfg.poster ? '<img src="' + esc(cfg.poster) + '" alt="">' : '') +
+        '<div><h1>' + esc(cfg.title || '') + '</h1>' +
+        (cfg.meta ? '<div class="m">' + esc(cfg.meta) + '</div>' : '') + '</div>' +
+      '</div>' +
+      '<div class="grid">' +
+        '<div>' +
+          '<div class="stage" data-stage>' +
+            '<div class="empty"><div class="big">\u25b6</div><div>Elige una fuente de la lista para empezar</div></div>' +
+          '</div>' +
+          '<div class="bar">' +
+            '<div class="now" data-now>Sin fuente seleccionada</div>' +
+            '<a class="btn" data-open target="_blank" rel="noopener" hidden>Abrir \u2197</a>' +
+            '<button class="btn" data-copy hidden>Copiar URL</button>' +
+            '<button class="btn" data-stop hidden>\u25a0 Detener</button>' +
+          '</div>' +
+        '</div>' +
+        '<aside><h2>Fuentes <span data-count style="color:var(--dim);font-size:12px"></span></h2>' +
+          '<div data-sources></div></aside>' +
+      '</div>';
+
+    var stage   = root.querySelector('[data-stage]');
+    var nowEl   = root.querySelector('[data-now]');
+    var openEl  = root.querySelector('[data-open]');
+    var copyEl  = root.querySelector('[data-copy]');
+    var stopEl  = root.querySelector('[data-stop]');
+    var countEl = root.querySelector('[data-count]');
+
+    var hlsInstance = null, dashInstance = null;
+    var currentUrl = '', activeBtn = null;
+
+    function teardown() {
+      if (hlsInstance)  { try { hlsInstance.destroy(); } catch (e) {} hlsInstance = null; }
+      if (dashInstance) { try { dashInstance.reset(); }   catch (e) {} dashInstance = null; }
+      stage.innerHTML = '';
+    }
+    function showNote(t) {
+      var n = document.createElement('div'); n.className = 'note'; n.textContent = t;
+      stage.appendChild(n);
+    }
+    function emptyState() {
+      stage.innerHTML = '<div class="empty"><div class="big">\u25b6</div><div>Elige una fuente de la lista para empezar</div></div>';
+
+    }
+
+    function play(url) {
+      teardown();
+      currentUrl = url;
+      var kind = detectKind(url);
+
+      if (kind === 'embed') {
+        var f = document.createElement('iframe');
+        f.src = url; f.title = 'Reproductor';
+        f.setAttribute('allowfullscreen', '');
+        f.setAttribute('referrerpolicy', 'no-referrer');
+        f.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen';
+        stage.appendChild(f);
+        showNote('DISFRUTA DEL EVENTO');
+        return;
+
+      }
+
+      var video = document.createElement('video');
+      video.controls = true; video.autoplay = true; video.playsInline = true;
+      video.setAttribute('playsinline', '');
+      stage.appendChild(video);
+
+      if (kind === 'file') { video.src = url; return; }
+
+      if (kind === 'hls') {
+        if (video.canPlayType('application/vnd.apple.mpegurl')) { video.src = url; return; }
+        loadScript('https://cdn.jsdelivr.net/npm/hls.js@1/dist/hls.min.js').then(function () {
+          if (!window.Hls || !window.Hls.isSupported()) throw new Error('HLS no soportado');
+          hlsInstance = new window.Hls({ lowLatencyMode: true });
+          hlsInstance.loadSource(url); hlsInstance.attachMedia(video);
+        })['catch'](function (e) { showNote('No se pudo reproducir el HLS: ' + e.message); });
+        return;
+      }
+
+      if (kind === 'dash') {
+        loadScript('https://cdn.dashjs.org/latest/dash.all.min.js').then(function () {
+          if (!window.dashjs) throw new Error('dash.js no disponible');
+          dashInstance = window.dashjs.MediaPlayer().create();
+          dashInstance.initialize(video, url, true);
+        })['catch'](function (e) { showNote('No se pudo reproducir el DASH: ' + e.message); });
+      }
+    }
+
+    function selectSource(btn, url, label) {
+      if (activeBtn) activeBtn.classList.remove('active');
+      activeBtn = btn; if (btn) btn.classList.add('active');
+      play(url);
+      nowEl.innerHTML = '<b>' + esc(label) + '</b> \u2014 ' + esc(url);
+      openEl.href = url; openEl.hidden = false;
+      copyEl.hidden = false; stopEl.hidden = false;
+    }
+
+    function stop() {
+      teardown(); emptyState();
+      nowEl.textContent = 'Sin fuente seleccionada';
+      openEl.hidden = true; copyEl.hidden = true; stopEl.hidden = true;
+      if (activeBtn) { activeBtn.classList.remove('active'); activeBtn = null; }
+      currentUrl = '';
+    }
+
+    /* ---------- Lista de fuentes ---------- */
+    function makeItem(url, label) {
+      var b = document.createElement('button');
+      b.type = 'button'; b.className = 'src';
+      b.innerHTML = '<span class="dot"></span><span class="txt">' +
+        '<span class="nm">' + esc(label) + '</span>' +
+        '<span class="url">' + esc(url) + '</span></span>';
+      b.addEventListener('click', function () { selectSource(b, url, label); });
+      return b;
+    }
+    function addGroup(box, title, items) {
+      if (!items.length) return;
+      var g = document.createElement('div'); g.className = 'grp';
+      var t = document.createElement('div'); t.className = 'glabel'; t.textContent = title;
+      g.appendChild(t);
+      items.forEach(function (it) { g.appendChild(makeItem(it.url, it.label)); });
+      box.appendChild(g);
+    }
+    function buildSources() {
+      var box = root.querySelector('[data-sources]');
+      box.innerHTML = '';
+      var list = cfg.sources || [], order = [], byGroup = {};
+      list.forEach(function (s) {
+        var g = s.group || 'Fuentes';
+        if (!byGroup[g]) { byGroup[g] = []; order.push(g); }
+        byGroup[g].push({ url: s.url, label: s.label || hostOf(s.url) });
+      });
+      order.forEach(function (g) { addGroup(box, g, byGroup[g]); });
+      countEl.textContent = list.length;
+    }
+
+    /* ---------- Acciones ---------- */
+    copyEl.addEventListener('click', function () {
+      if (!currentUrl) return;
+      var done = function () {
+        var old = copyEl.textContent;
+        copyEl.textContent = '\u00a1Copiado!';
+        setTimeout(function () { copyEl.textContent = old; }, 1200);
+      };
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(currentUrl).then(done, done);
+        else done();
+      } catch (e) { done(); }
+    });
+    stopEl.addEventListener('click', stop);
+
+    buildSources();
+    return root.__zfp;
+  }
+
+  /* ---------- API pública + auto-montaje ---------- */
+  window.ZFP = { init: init, config: DEFAULT };
+
+  function boot() {
+    var base = window.ZFP_CONFIG || {};
+    Array.prototype.forEach.call(document.querySelectorAll('[data-zfp]'), function (el) {
+      init(el, base);
+    });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
+})();
+</script>
+
+<!-- ------------------------------------------------------------
+     EJEMPLO: otro evento con configuración propia.
+     (Descomenta y define window.ZFP_CONFIG ANTES de este script,
+      o llama a ZFP.init() después.)
+
+     window.ZFP_CONFIG = {
+       title: 'España vs Italia',
+       meta: 'Amistoso · 20/11/2026 21:00 · Estadio Santiago Bernabéu',
+       poster: 'https://ejemplo.com/poster.jpg',
+       sources: [
+         { group: 'ZicoTV', label: 'La 1', url: 'https://bp.zicotv.cc/api/player/1' },
+         { group: 'English', label: 'ESPN · HD', url: 'https://dlhd.pk/stream/stream-149.php' }
+       ]
+     };
+     ------------------------------------------------------------ -->
