@@ -14,25 +14,39 @@
      Sin chat, sin anuncios, sin scripts de terceros.
      ============================================================ -->
 
+<!-- Adaptación al dispositivo: si tu página no lo tiene ya, añade esta
+     etiqueta en el <head>. Sin ella, los móviles no aplican el diseño
+     responsive (usan un ancho de 980px). -->
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
 <style>
+  /* ===== Adaptado a la resolución del dispositivo (responsive) ===== */
   .zfp{--bg:#0f1015;--panel:#161821;--panel2:#1c1f2b;--line:#282c3a;--txt:#e9ecf3;
     --dim:#98a2b8;--accent:#e50914;--accent2:#3ea6ff;--ok:#39d98a;
-    background:var(--bg);color:var(--txt);padding:14px;border-radius:14px;
-    font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+    --zfp-player-w:400px;   /* ancho del reproductor en pantallas grandes; en móvil se apila */
+    background:var(--bg);color:var(--txt);
+    padding:clamp(10px,2.4vw,16px);border-radius:14px;
+    font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    width:100%;max-width:100%;overflow-wrap:anywhere;-webkit-text-size-adjust:100%}
   .zfp *{box-sizing:border-box}
   .zfp a{color:var(--accent2);text-decoration:none}
   .zfp a:hover{text-decoration:underline}
   .zfp .ev{display:flex;gap:12px;align-items:center;margin-bottom:12px}
-  .zfp .ev img{width:60px;height:60px;border-radius:10px;object-fit:cover;background:#000;flex:none}
-  .zfp .ev h1{margin:0;font-size:17px;line-height:1.2}
-  .zfp .ev .m{color:var(--dim);font-size:12.5px}
-  /* Reproductor pequeño a la izquierda, fuentes anchas a la derecha.
-     Cambia el tamaño del reproductor con  --zfp-player-w  (o ponlo en "1fr"). */
+  .zfp .ev img{width:clamp(44px,11vw,60px);height:clamp(44px,11vw,60px);
+    border-radius:10px;object-fit:cover;background:#000;flex:none}
+  .zfp .ev h1{margin:0;font-size:clamp(15px,4.4vw,18px);line-height:1.2}
+  .zfp .ev .m{color:var(--dim);font-size:clamp(11.5px,3.3vw,12.5px)}
+  /* Reproductor a la izquierda y fuentes a la derecha en pantallas anchas.
+     Por debajo de 820px se apila: el reproductor ocupa todo el ancho. */
   .zfp .grid{display:grid;gap:14px;align-items:start;
-    grid-template-columns:minmax(0,var(--zfp-player-w,400px)) minmax(0,1fr)}
-  @media (max-width:760px){.zfp .grid{grid-template-columns:1fr}}
+    grid-template-columns:minmax(0,var(--zfp-player-w)) minmax(0,1fr)}
+  @media (max-width:820px){ .zfp .grid{grid-template-columns:1fr} }
   .zfp .stage{position:relative;width:100%;aspect-ratio:16/9;background:#000;
     border-radius:12px;overflow:hidden;border:1px solid var(--line)}
+  /* Móvil apaisado: limita el alto para que quepan las fuentes */
+  @media (max-height:560px) and (orientation:landscape){
+    .zfp .stage{max-height:72vh;margin-inline:auto}
+  }
   .zfp .stage>iframe,.zfp .stage>video{position:absolute;inset:0;width:100%;height:100%;
     border:0;display:block;background:#000}
   .zfp .empty{position:absolute;inset:0;display:flex;flex-direction:column;gap:8px;
@@ -48,7 +62,8 @@
     border-radius:9px;padding:7px 11px;font:600 12.5px/1 inherit;cursor:pointer}
   .zfp .btn:hover{border-color:#3a4664;background:#222634}
   .zfp aside{background:var(--panel);border:1px solid var(--line);border-radius:12px;
-    padding:11px;max-height:min(72vh,620px);overflow:auto}
+    padding:11px;max-height:min(72vh,620px);overflow:auto;-webkit-overflow-scrolling:touch}
+  @media (max-width:820px){ .zfp aside{max-height:none;overflow:visible} }
   .zfp h2{margin:2px 0 10px;font-size:14px}
   .zfp .grp{margin-bottom:11px}
   .zfp .glabel{color:var(--dim);font-size:11px;text-transform:uppercase;
@@ -61,9 +76,14 @@
   .zfp .src .dot{width:7px;height:7px;border-radius:50%;background:var(--ok);flex:none;margin-top:5px}
   .zfp .src .txt{flex:1;min-width:0}
   .zfp .src .nm{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  /* URL completa, visible y seleccionable */
-  .zfp .src .url{display:block;margin-top:2px;color:#8f9bb3;
-    font:400 11px/1.35 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;word-break:break-all}
+  /* La URL no se muestra: la fila sigue siendo pulsable y reproduce la fuente.
+     Para volver a verla, cambia  display:none  por  display:block. */
+  .zfp .src .url{display:none}
+  /* Pantallas táctiles: objetivos más grandes */
+  @media (hover:none){
+    .zfp .src{padding:11px 12px;min-height:44px}
+    .zfp .btn{padding:10px 13px}
+  }
     
     @media (max-width: 480px) { .bg-photo {background-image:url(https\:\/\/themes.googleusercontent.com\/image?id=L1lcAxxz0CLgsDzixEprHJ2F38TyEjCyE3RSAjynQDks0lT1BDc1OxXKaTEdLc89HPvdB11X9FDw&options=w480);}}
 @media (max-width: 640px) and (min-width: 481px) { .bg-photo {background-image:url(https\:\/\/themes.googleusercontent.com\/image?id=L1lcAxxz0CLgsDzixEprHJ2F38TyEjCyE3RSAjynQDks0lT1BDc1OxXKaTEdLc89HPvdB11X9FDw&options=w640);}}
@@ -243,7 +263,7 @@
       if (activeBtn) activeBtn.classList.remove('active');
       activeBtn = btn; if (btn) btn.classList.add('active');
       play(url);
-      nowEl.innerHTML = '<b>' + esc(label) + '</b> \u2014 ' + esc(url);
+      nowEl.innerHTML = '<b>' + esc(label) + '</b>';
       openEl.href = url; openEl.hidden = false;
       copyEl.hidden = false; stopEl.hidden = false;
     }
