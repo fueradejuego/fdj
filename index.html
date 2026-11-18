@@ -1,3 +1,12 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>FUERA DE JUEGO</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+</head>
+<body>
+
 <!-- ============================================================
      FRAGMENTO B · Reproductor + fuentes  (CONFIGURABLE)
      ------------------------------------------------------------
@@ -17,13 +26,12 @@
 <!-- Adaptación al dispositivo: si tu página no lo tiene ya, añade esta
      etiqueta en el <head>. Sin ella, los móviles no aplican el diseño
      responsive (usan un ancho de 980px). -->
-<meta name="viewport" content="width=device-width, initial-scale=1">
 
 <style>
   /* ===== Adaptado a la resolución del dispositivo (responsive) ===== */
   .zfp{--bg:#0f1015;--panel:#161821;--panel2:#1c1f2b;--line:#282c3a;--txt:#e9ecf3;
     --dim:#98a2b8;--accent:#e50914;--accent2:#3ea6ff;--ok:#39d98a;
-    --zfp-player-w:400px;   /* ancho del reproductor en pantallas grandes; en móvil se apila */
+    --zfp-player-w:600px;   /* ancho del reproductor en pantallas grandes; en móvil se apila */
     background:var(--bg);color:var(--txt);
     padding:clamp(10px,2.4vw,16px);border-radius:14px;
     font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
@@ -88,15 +96,6 @@
     .zfp .src{padding:11px 12px;min-height:44px}
     .zfp .btn{padding:10px 13px}
   }
-    
-    @media (max-width: 480px) { .bg-photo {background-image:url(https\:\/\/themes.googleusercontent.com\/image?id=L1lcAxxz0CLgsDzixEprHJ2F38TyEjCyE3RSAjynQDks0lT1BDc1OxXKaTEdLc89HPvdB11X9FDw&options=w480);}}
-@media (max-width: 640px) and (min-width: 481px) { .bg-photo {background-image:url(https\:\/\/themes.googleusercontent.com\/image?id=L1lcAxxz0CLgsDzixEprHJ2F38TyEjCyE3RSAjynQDks0lT1BDc1OxXKaTEdLc89HPvdB11X9FDw&options=w640);}}
-@media (max-width: 800px) and (min-width: 641px) { .bg-photo {background-image:url(https\:\/\/themes.googleusercontent.com\/image?id=L1lcAxxz0CLgsDzixEprHJ2F38TyEjCyE3RSAjynQDks0lT1BDc1OxXKaTEdLc89HPvdB11X9FDw&options=w800);}}
-@media (max-width: 1200px) and (min-width: 801px) { .bg-photo {background-image:url(https\:\/\/themes.googleusercontent.com\/image?id=L1lcAxxz0CLgsDzixEprHJ2F38TyEjCyE3RSAjynQDks0lT1BDc1OxXKaTEdLc89HPvdB11X9FDw&options=w1200);}}
-/* Last tag covers anything over one higher than the previous max-size cap. */
-@media (min-width: 1201px) { .bg-photo {background-image:url(https\:\/\/themes.googleusercontent.com\/image?id=L1lcAxxz0CLgsDzixEprHJ2F38TyEjCyE3RSAjynQDks0lT1BDc1OxXKaTEdLc89HPvdB11X9FDw&options=w1600);}}
-
-
 </style>
 
 <!-- Aquí se monta el reproductor. Añade atributos data-* si quieres
@@ -114,11 +113,10 @@
     meta: 'USO PARTICULAR',
     poster: 'https://png.pngtree.com/png-vector/20221122/ourmid/pngtree-football-offside-flag-png-image_6454641.png',
     sources: [
-      { group: 'Fuera de juego',   label: 'Portugal-Gales', url: SITE + '/api/player/1' },
-       { group: 'Fuera de juego 2',   label: 'Portugal-Gales', url: SITE + '/api/player/4' },
-       { group: 'Fuera de juego 3',   label: 'Portugal-Gales', url:'https://streamx723.sbs/global2.php?channel=espn' },
-         { group: 'Fuera de juego 4',   label: 'Portugal-Gales', url:' https://streamtp99a.sbs/global2.php?stream=espn' },
-      { group: 'English',  label: 'FOX Sports 2 \u00b7 HD',        url: 'https://dlhd.pk/stream/stream-758.php' },
+      { group: 'Fuera de juego',   label: 'Athl.Club-Espanyol', url: SITE + '/api/player/1' },
+       { group: 'Fuera de juego 2',   label: 'Athl.Club-Espanyol', url: SITE + '/api/player/4' },
+
+      { group: 'English',  label: 'FOX Sports 2 \u00b7 HD',        url: 'https://exmxbxe.cfd/embed/tntsports1-uk' },
       { group: 'English',  label: 'FUBO Sports Network \u00b7 FHD', url: 'https://xyzstreams.st/embed?fubosn' },
       { group: '\u010ce\u0161tina', label: 'Sport 1 \u00b7 FHD',   url: 'https://google.com/play/play_other.php?id=710' },
       { group: 'Polski',   label: 'Polsat Sport 1 \u00b7 UHD',     url: 'https://vcdn-4758.website/shopping2/?channel_id=polsat_sport1' },
@@ -359,3 +357,6 @@
        ]
      };
      ------------------------------------------------------------ -->
+     </body>
+</html>
+
