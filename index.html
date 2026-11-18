@@ -110,7 +110,7 @@
   var SITE = 'https://bp.zicotv.cc';
   var DEFAULT = {
     title: 'FUERA DE JUEGO',
-    meta: 'USO PARTICULAR',
+    meta: '',
     poster: 'https://png.pngtree.com/png-vector/20221122/ourmid/pngtree-football-offside-flag-png-image_6454641.png',
     sources: [
       { group: '18/11/26   Euroliga baloncesto',   label: '18:00  Besiktas - Real Madrid', url: SITE + '/api/player/42816' },
@@ -207,9 +207,11 @@
           '</div>' +
           '<div class="bar">' +
             '<div class="now" data-now>Sin fuente seleccionada</div>' +
-            '<a class="btn" data-open target="_blank" rel="noopener" hidden>Abrir \u2197</a>' +
-            '<button class="btn" data-copy hidden>Copiar URL</button>' +
-            '<button class="btn" data-stop hidden>\u25a0 Detener</button>' +
+            '<a class="btn" data-open target="_blank" rel="noopener" hidden>-</a>' +
+            '<button class="btn" data-copy hidden>-</button>' +
+            '<button class="btn" data-stop hidden>-</button>' +
+
+
           '</div>' +
         '</div>' +
         '<aside><h2>Fuentes <span data-count style="color:var(--dim);font-size:12px"></span></h2>' +
