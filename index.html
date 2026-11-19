@@ -321,6 +321,10 @@
       g.appendChild(t);
       items.forEach(function (it) { g.appendChild(makeItem(it.url, it.label)); });
       box.appendChild(g);
+      var m = /^(\s*\d{1,2}\/\d{1,2}\/\d{2,4})(.*)$/.exec(String(title));
+if (m) t.innerHTML = '<span class="date">' + esc(m[1]) + '</span>' + esc(m[2]);
+else t.textContent = title;         // dentro de addGroup
+      
     }
     function buildSources() {
       var box = root.querySelector('[data-sources]');
