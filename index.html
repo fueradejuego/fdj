@@ -8,30 +8,30 @@
 <body>
 
 <!-- ============================================================
-     FRAGMENTO B · Reproductor + fuentes  (CONFIGURABLE)
+     FRAGMENTO B Â· Reproductor + fuentes  (CONFIGURABLE)
      ------------------------------------------------------------
-     Igual que el fragmento A, pero el título y las fuentes se
-     pasan por parámetro, así sirve para CUALQUIER evento.
+     Igual que el fragmento A, pero el tÃ­tulo y las fuentes se
+     pasan por parÃ¡metro, asÃ­ sirve para CUALQUIER evento.
 
      Formas de usarlo (elige una):
        1) Define window.ZFP_CONFIG ANTES de este script.
        2) Pon atributos data-* en el div:  data-title, data-meta,
           data-poster, data-sources='[{"group":"...","label":"...","url":"..."}]'
-       3) Llama después:  ZFP.init(document.querySelector('[data-zfp]'), cfg)
+       3) Llama despuÃ©s:  ZFP.init(document.querySelector('[data-zfp]'), cfg)
 
      Puedes poner VARIOS <div data-zfp> y cada uno monta su reproductor.
      Sin chat, sin anuncios, sin scripts de terceros.
      ============================================================ -->
 
-<!-- Adaptación al dispositivo: si tu página no lo tiene ya, añade esta
-     etiqueta en el <head>. Sin ella, los móviles no aplican el diseño
+<!-- AdaptaciÃ³n al dispositivo: si tu pÃ¡gina no lo tiene ya, aÃ±ade esta
+     etiqueta en el <head>. Sin ella, los mÃ³viles no aplican el diseÃ±o
      responsive (usan un ancho de 980px). -->
 
 <style>
-  /* ===== Adaptado a la resolución del dispositivo (responsive) ===== */
+  /* ===== Adaptado a la resoluciÃ³n del dispositivo (responsive) ===== */
   .zfp{--bg:#0f1015;--panel:#161821;--panel2:#1c1f2b;--line:#282c3a;--txt:#e9ecf3;
     --dim:#98a2b8;--accent:#e50914;--accent2:#3ea6ff;--ok:#39d98a;
-    --zfp-player-w:600px;   /* ancho del reproductor en pantallas grandes; en móvil se apila */
+    --zfp-player-w:600px;   /* ancho del reproductor en pantallas grandes; en mÃ³vil se apila */
     background:var(--bg);color:var(--txt);
     padding:clamp(10px,2.4vw,16px);border-radius:14px;
     font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
@@ -55,7 +55,7 @@
   /* Alto 16:9 con respaldo para Safari < 15 (sin aspect-ratio) */
   @supports (aspect-ratio:16/9){ .zfp .stage{aspect-ratio:16/9} }
   @supports not (aspect-ratio:16/9){ .zfp .stage::before{content:"";display:block;padding-top:56.25%} }
-  /* Móvil apaisado: limita el alto para que quepan las fuentes */
+  /* MÃ³vil apaisado: limita el alto para que quepan las fuentes */
   @media (max-height:560px) and (orientation:landscape){
     .zfp .stage{max-height:72vh;margin-inline:auto}
   }
@@ -92,22 +92,22 @@
   /* La URL no se muestra: la fila sigue siendo pulsable y reproduce la fuente.
      Para volver a verla, cambia  display:none  por  display:block. */
   .zfp .src .url{display:none}
-  /* Pantallas táctiles: objetivos más grandes */
+  /* Pantallas tÃ¡ctiles: objetivos mÃ¡s grandes */
   @media (hover:none){
     .zfp .src{padding:11px 12px;min-height:44px}
     .zfp .btn{padding:10px 13px}
   }
 </style>
 
-<!-- Aquí se monta el reproductor. Añade atributos data-* si quieres
-     sobrescribir el título/fuentes por defecto. -->
+<!-- AquÃ­ se monta el reproductor. AÃ±ade atributos data-* si quieres
+     sobrescribir el tÃ­tulo/fuentes por defecto. -->
 <div class="zfp" data-zfp></div>
 
 <script>
 (function () {
   'use strict';
 
-  /* ---------- Configuración por defecto (se puede sobrescribir) ---------- */
+  /* ---------- ConfiguraciÃ³n por defecto (se puede sobrescribir) ---------- */
   var SITE = 'https://bp.zicotv.cc';
   var DEFAULT = {
     title: 'FUERA DE JUEGO',
@@ -116,13 +116,8 @@
     sources: [
    
        
-       { group: '19/11/26   Euroliga baloncesto',    label: '19:00  Zalgiris - Panathinaikos', url: SITE + '/api/player/47001' },
-       { group: '19/11/26   Euroliga baloncesto',    label: '20:00  Bayern M�nchen - Baskonia', url: SITE + '/api/player/42816' },
-       { group: '19/11/26   Nitto ATP Finals',       label: '20:30  Zverev - Fils', url: SITE + '/api/player/35' },
-       { group: '19/11/26   Euroliga baloncesto0',   label: '20:30  Milan - Fenerbahce', url: SITE + '/api/player/50506' },
-       { group: '19/11/26   Euroliga baloncesto0',  label: '20:45  Paris - Hapoel Tel Aviv (VO)', url: SITE + '/api/player/42816' },
-       { group: '19/11/26   Euroliga baloncesto0',   label: '21:00  Valencia Basket - Virtus', url: SITE + '/api/player/9' },
-       { group: '20/11/26   Liga Hypermotion',       label: '20:30  Andorra - Legan�s', url: SITE + '/api/player/12' },
+       
+       { group: '20/11/26   Liga Hypermotion',       label: '20:30  Andorra - Leganés', url: SITE + '/api/player/12' },
 
        { group: '20/11/26 Liga EA Sports',   label: '21:00  Athl.Club - Espanyol', url: SITE + '/api/player/4' },
        { group: '20/11/26 Liga EA Sports',   label: '21:00  Athl.Club - Espanyol', url: SITE + '/api/player/10' },
@@ -130,9 +125,9 @@
        { group: '21/11/26 Formula 1',        label: '05:00  GP Las Vegas', url: SITE + '/api/player/11' },
         { group: '21/11/26 Premier League',  label: '13:30  M. City-Fulham', url: SITE + '/api/player/4' },
        { group: '21/11/26 Liga Hypermotion', label: '14:00  Sabadell - Granada', url: SITE + '/api/player/12' },
-       { group: '21/11/26 Liga EA Sports',   label: '14:00  Deportivo Alav�s - RC Deportivo', url: SITE + '/api/player/10' },
-       { group: '21/11/26 Liga EA Sports',   label: '14:00  Deportivo Alav�s - RC Deportivo', url: SITE + '/api/player/4' },
-       { group: '21/11/26 Liga EA Sports',   label: '14:00  Deportivo Alav�s - RC Deportivo', url: SITE + '/api/player/10' },
+       { group: '21/11/26 Liga EA Sports',   label: '14:00  Deportivo Alavés - RC Deportivo', url: SITE + '/api/player/10' },
+       { group: '21/11/26 Liga EA Sports',   label: '14:00  Deportivo Alavés - RC Deportivo', url: SITE + '/api/player/4' },
+       { group: '21/11/26 Liga EA Sports',   label: '14:00  Deportivo Alavés - RC Deportivo', url: SITE + '/api/player/10' },
 
        { group: '21/11/26 Moto GP',  label: '16:00  Gp Do Algarve', url: SITE + '/api/player/10' },
        { group: '21/11/26 Premier0 League',  label: '16:00  Chelsea-Leeds', url: SITE + '/api/player/4' },
@@ -162,8 +157,8 @@
        { group: '22/11/26 Liga0 EA Sports',  label: '16:15  Racing - Real Sociedad', url: SITE + '/api/player/10' },
        { group: '22/11/26 Premier0 League',  label: 'Liverpool - Manchester United', url: SITE + '/api/player/4' },
 
-       { group: '22/11/26 Liga1 EA Sports',  label: '18:30  Osasuna - M�laga', url: SITE + '/api/player/1' },
-       { group: '22/11/26 Liga1 EA Sports',  label: '18:30  Osasuna - M�laga', url: SITE + '/api/player/10' },
+       { group: '22/11/26 Liga1 EA Sports',  label: '18:30  Osasuna - Málaga', url: SITE + '/api/player/1' },
+       { group: '22/11/26 Liga1 EA Sports',  label: '18:30  Osasuna - Málaga', url: SITE + '/api/player/10' },
        { group: '22/11/26 Liga2 EA Sports',  label: '21:00  Getafe - Atletico de Madrid', url: SITE + '/api/player/4' },
        { group: '22/11/26 Liga2 EA Sports',  label: '21:00  Getafe - Atletico de Madrid', url: SITE + '/api/player/10' },
        { group: '23/11/26 Liga EA Sports',   label: '21:00  Levante - Elche', url: SITE + '/api/player/1' },
@@ -388,7 +383,7 @@ else t.textContent = title;         // dentro de addGroup
     return root.__zfp;
   }
 
-  /* ---------- API pública + auto-montaje ---------- */
+  /* ---------- API pÃºblica + auto-montaje ---------- */
   window.ZFP = { init: init, config: DEFAULT };
 
   function boot() {
@@ -403,17 +398,17 @@ else t.textContent = title;         // dentro de addGroup
 </script>
 
 <!-- ------------------------------------------------------------
-     EJEMPLO: otro evento con configuración propia.
+     EJEMPLO: otro evento con configuraciÃ³n propia.
      (Descomenta y define window.ZFP_CONFIG ANTES de este script,
-      o llama a ZFP.init() después.)
+      o llama a ZFP.init() despuÃ©s.)
 
      window.ZFP_CONFIG = {
-       title: 'España vs Italia',
-       meta: 'Amistoso · 20/11/2026 21:00 · Estadio Santiago Bernabéu',
+       title: 'EspaÃ±a vs Italia',
+       meta: 'Amistoso Â· 20/11/2026 21:00 Â· Estadio Santiago BernabÃ©u',
        poster: 'https://ejemplo.com/poster.jpg',
        sources: [
          { group: 'ZicoTV', label: 'La 1', url: 'https://bp.zicotv.cc/api/player/1' },
-         { group: 'English', label: 'ESPN · HD', url: 'https://dlhd.pk/stream/stream-149.php' }
+         { group: 'English', label: 'ESPN Â· HD', url: 'https://dlhd.pk/stream/stream-149.php' }
        ]
      };
      ------------------------------------------------------------ -->
